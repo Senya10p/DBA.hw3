@@ -1,0 +1,86 @@
+Запросы
+////////////
+БД MySQL
+------------------------------
+Запрос на выбор 10 самых новых товаров (выбор по дате поступления товара на склад):
+SELECT * FROM `products`
+ORDER BY `date` DESC LIMIT 10;
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле date:
+CREATE INDEX `date_index` ON `products` (`date`);
+EXPLAIN: прошлись по всем записям таблицы
+------------------------------
+Запрос на выбор 10 самых дешёвых товаров:
+SELECT * FROM `products`
+ORDER BY `price` LIMIT 10;
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле price:
+CREATE INDEX `price_index` ON `products` (`price`);
+EXPLAIN: индекс не использовался
+------------------------------
+Запрос на выбор 10 товаров, цена на которых была максимально снижена (в абсолютном или относительном смысле):
+SELECT *, `old_price` - `price` AS `discount`
+FROM `products`
+ORDER BY (`old_price` - `price`) DESC LIMIT 10;
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле old_price:
+CREATE INDEX `old_price_index` ON `products` (`old_price`);
+EXPLAIN: индекс не использовался
+------------------------------
+Запрос на выбор товаров, чей артикул начинается с символов "TEST", используем оператор LIKE:
+SELECT * FROM `products`
+WHERE `article` LIKE 'TEST%';
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле article:
+CREATE UNIQUE INDEX `article_index` ON `products` (`article`);
+EXPLAIN: было отобрано 3 записи, у которых в начале артикла есть "TEST"
+------------------------------
+При создании таблицы с уникальным артикулом, автоматически создаётся индекс article,
+который используется для выборки.
+
+////////////
+БД Postgres
+------------------------------
+Запрос на выбор 10 самых новых товаров (выбор по дате поступления товара на склад):
+SELECT * FROM "products"
+ORDER BY "date" DESC LIMIT 10;
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле date:
+CREATE INDEX "date_index" ON "products" ("date");
+EXPLAIN: прошлись по всем записям таблицы. Использовался date_index
+------------------------------
+Запрос на выбор 10 самых дешёвых товаров:
+SELECT * FROM "products"
+ORDER BY "price" LIMIT 10;
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле price:
+CREATE INDEX "price_index" ON "products" ("price");
+EXPLAIN: прошлись по всем записям таблицы. Использовался price_index
+------------------------------
+Запрос на выбор 10 товаров, цена на которых была максимально снижена (в абсолютном или относительном смысле):
+SELECT *, "old_price" - "price" AS "discount"
+FROM "products"
+ORDER BY ("old_price" - "price") DESC LIMIT 10;
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле old_price:
+CREATE INDEX "old_price_index" ON "products" ("old_price");
+EXPLAIN: прошлись по всем записям таблицы. Индекс не использовался
+------------------------------
+Запрос на выбор товаров, чей артикул начинается с символов "TEST", используем оператор LIKE:
+SELECT * FROM "products"
+WHERE "article" LIKE 'TEST%';
+
+EXPLAIN: прошлись по всем записям таблицы
+Создаём индекс на поле article:
+CREATE INDEX "article_index" ON "products" ("article");
+EXPLAIN: было отобрано 3 записи, у которых в начале артикла есть "TEST".
+------------------------------
+При создании таблицы с уникальным артикулом, автоматически создаётся индекс products_article_key,
+который используется для выборки.
